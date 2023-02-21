@@ -1,1 +1,32 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        # show_sql: true
 
+  sql:
+    init:
+      mode: always
+      schema-locations:
+        - "classpath:sql/schema.sql"
+      data-locations:
+        - "classpath:sql/data.sql"
+
+  ldap:
+    embedded:
+      ldif: classpath:ldap/ldap.ldif
+      base-dn:
+        - "dc=springframework,dc=org"
+      port: 33389
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+#    org.hibernate.type: TRACE
