@@ -2,8 +2,8 @@ package com.example.springsecurityinaction.security;
 
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -30,7 +30,8 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!passwordEncoder.matches(userDetails.getPassword(), password)) {
-            throw new AuthenticationCredentialsNotFoundException("Invalid password");
+//            throw new AuthenticationCredentialsNotFoundException("Invalid password");
+            throw new BadCredentialsException("Bad credentials");
         }
 
         return new UsernamePasswordAuthenticationToken(
