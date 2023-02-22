@@ -2,14 +2,17 @@ package com.example.springsecurityinaction.config;
 
 import com.example.springsecurityinaction.domain.UserAuthority;
 import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
+import com.example.springsecurityinaction.security.entrypoint.AuthenticationEntryPointImpl;
 import com.example.springsecurityinaction.security.service.InMemoryUserDetailsService;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,24 +30,42 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+
+    private final AuthenticationFailureHandler authenticationFailureHandler;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 //        http
 //            .authorizeHttpRequests().anyRequest().authenticated();
 //        http.httpBasic(withDefaults());
-        http.authorizeHttpRequests((authRequestMatcher) ->
-                authRequestMatcher
-                    .mvcMatchers(HttpMethod.GET, "/health").permitAll()
-                    .anyRequest().authenticated())
-            .httpBasic();
+        http.httpBasic(c -> {
+            c.realmName("OTHER");
+            c.authenticationEntryPoint(new AuthenticationEntryPointImpl());
+        });
+
+        http.formLogin()
+            .defaultSuccessUrl("/home", true)
+            .successHandler(authenticationSuccessHandler)
+            .failureHandler(authenticationFailureHandler);
+
+        http.authorizeHttpRequests(c ->
+                c.mvcMatchers(HttpMethod.GET, "/health").permitAll()
+                    .anyRequest().authenticated());
 
         return http.build();
     }
 
-    @Bean
+//    @Bean
+    @SuppressWarnings("unused")
     public UserDetailsService userDetailsServiceByLdapUserDetailsManager() {
         var contextSource = new DefaultSpringSecurityContextSource(
             "ldap://127.0.0.1:33389/dc=springframework,dc=org"
@@ -59,7 +80,7 @@ public class SecurityConfig {
         return manager;
     }
 
-    // @Bean
+     @Bean
     @SuppressWarnings("unused")
     public UserDetailsService userDetailsServiceByJdbcUserDetailsManager(DataSource dataSource) {
         String usersByUsernameQuery = "select username, password, enabled from users where username = ?";

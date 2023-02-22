@@ -1,6 +1,5 @@
 package com.example.springsecurityinaction.security;
 
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -35,7 +34,7 @@ public class AuthenticationProviderImpl implements AuthenticationProvider {
         }
 
         return new UsernamePasswordAuthenticationToken(
-            username, password, Collections.emptyList());
+            username, password, userDetails.getAuthorities());
     }
 
     @Override
