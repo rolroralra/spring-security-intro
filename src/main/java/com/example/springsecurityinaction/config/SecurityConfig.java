@@ -1,7 +1,9 @@
 package com.example.springsecurityinaction.config;
 
 import com.example.springsecurityinaction.domain.UserAuthority;
+import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
 import com.example.springsecurityinaction.security.service.InMemoryUserDetailsService;
+import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
@@ -11,8 +13,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
@@ -51,7 +59,8 @@ public class SecurityConfig {
         return manager;
     }
 
-//    @Bean
+    // @Bean
+    @SuppressWarnings("unused")
     public UserDetailsService userDetailsServiceByJdbcUserDetailsManager(DataSource dataSource) {
         String usersByUsernameQuery = "select username, password, enabled from users where username = ?";
         String authsByUsernameQuery = "select username, authority from authorities where username = ?";
@@ -65,6 +74,7 @@ public class SecurityConfig {
     }
 
     // @Bean
+    @SuppressWarnings("unused")
     public UserDetailsService userDetailsServiceByCustom() {
         UserDetails userDetails = User
             .withUsername("rolroralra")
@@ -76,6 +86,7 @@ public class SecurityConfig {
     }
 
     // @Bean
+    @SuppressWarnings("unused")
     public UserDetailsService userDetailsServiceByInMemoryUserDetailsManager() {
         var userDetailsService = new InMemoryUserDetailsManager();
 
@@ -92,13 +103,49 @@ public class SecurityConfig {
     @Bean
     @SuppressWarnings("deprecation")
     public PasswordEncoder passwordEncoder() {
+        PasswordEncoderFactories.createDelegatingPasswordEncoder();
         return NoOpPasswordEncoder.getInstance();
-//        String idForEncode = "bcrypt";
-//        Map<String,PasswordEncoder> encoders = new HashMap<>();
-//        encoders.put(idForEncode, new BCryptPasswordEncoder());
-//        encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
-//        encoders.put("scrypt", new SCryptPasswordEncoder());
 
-//        return new DelegatingPasswordEncoder(idForEncode, encoders);
     }
+
+//    @Bean
+    @SuppressWarnings("unused")
+    public PasswordEncoder passwordEncoder2() {
+        String idForEncode = "bcrypt";
+        Map<String,PasswordEncoder> encoders = new HashMap<>();
+        encoders.put(idForEncode, new BCryptPasswordEncoder());
+        encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
+        encoders.put("scrypt", new SCryptPasswordEncoder());
+
+        return new DelegatingPasswordEncoder(idForEncode, encoders);
+    }
+
+    // @Bean
+    @SuppressWarnings({"deprecation", "unused"})
+    public PasswordEncoder passwordEncoder3() {
+        String encodingId = "bcrypt";
+        Map<String, PasswordEncoder> encoders = new HashMap<>();
+        encoders.put(encodingId, new BCryptPasswordEncoder());
+        encoders.put("ldap", new org.springframework.security.crypto.password.LdapShaPasswordEncoder());
+        encoders.put("MD4", new org.springframework.security.crypto.password.Md4PasswordEncoder());
+        encoders.put("MD5", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("MD5"));
+        encoders.put("noop", org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance());
+        encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
+        encoders.put("scrypt", new SCryptPasswordEncoder());
+        encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
+        encoders.put("SHA-256",
+            new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
+        encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
+        encoders.put(Sha512PasswordEncoder.ENCODING_ALGORITHM, new Sha512PasswordEncoder());
+        encoders.put("argon2", new Argon2PasswordEncoder());
+        return new DelegatingPasswordEncoder(encodingId, encoders);
+    }
+
+    // @Bean
+    @SuppressWarnings("unused")
+    public PasswordEncoder passwordEncoder4() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
 }
+
