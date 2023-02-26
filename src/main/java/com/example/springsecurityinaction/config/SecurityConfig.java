@@ -57,9 +57,15 @@ public class SecurityConfig {
 //            .successHandler(authenticationSuccessHandler)
 //            .failureHandler(authenticationFailureHandler);
 
-        http.authorizeHttpRequests(c ->
-                c.mvcMatchers(HttpMethod.GET, "/health").permitAll()
-                    .anyRequest().authenticated());
+//        http.authorizeHttpRequests()
+//                .mvcMatchers(HttpMethod.GET, "/health").permitAll()
+//                .anyRequest().hasAuthority("READ")
+//                .anyRequest().hasAnyAuthority("READ", "WRITE");
+
+        http.authorizeRequests()
+            .mvcMatchers(HttpMethod.GET, "/health").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/hello").access("hasAuthority('READ') and !hasAuthority('WRITE')")
+            .anyRequest().authenticated();
 
         return http.build();
     }
