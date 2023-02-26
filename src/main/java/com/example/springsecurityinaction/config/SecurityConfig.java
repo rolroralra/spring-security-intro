@@ -57,14 +57,24 @@ public class SecurityConfig {
 //            .successHandler(authenticationSuccessHandler)
 //            .failureHandler(authenticationFailureHandler);
 
+        // 1. hasAuthority("READ"), hasAnyAuthority(...)
 //        http.authorizeHttpRequests()
 //                .mvcMatchers(HttpMethod.GET, "/health").permitAll()
 //                .anyRequest().hasAuthority("READ")
 //                .anyRequest().hasAnyAuthority("READ", "WRITE");
 
+        // 2. access(spEL) - authority
+//        http.authorizeRequests()
+//            .mvcMatchers(HttpMethod.GET, "/health").permitAll()
+//            .mvcMatchers(HttpMethod.GET, "/hello").access("hasAuthority('READ') and !hasAuthority('WRITE')")
+//            .anyRequest().authenticated();
+
+        // 3. hasRole("MANAGER"), hasAnyRole(...), access(spEL) - role
         http.authorizeRequests()
             .mvcMatchers(HttpMethod.GET, "/health").permitAll()
-            .mvcMatchers(HttpMethod.GET, "/hello").access("hasAuthority('READ') and !hasAuthority('WRITE')")
+//            .mvcMatchers(HttpMethod.GET, "/hello").hasRole("MANAGER")
+//            .mvcMatchers(HttpMethod.GET, "/hello").hasAnyRole("MANAGER", "ADMIN")
+            .mvcMatchers(HttpMethod.GET, "/hello").access("hasRole('MANAGER') and !hasAuthority('ADMIN')")
             .anyRequest().authenticated();
 
         return http.build();

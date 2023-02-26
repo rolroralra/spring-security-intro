@@ -8,7 +8,10 @@ INSERT INTO `user_info` ( `username`, `password`, `algorithm`) VALUES ( 'rolrora
 INSERT INTO `user_info` ( `username`, `password`, `algorithm`) VALUES ( 'admin', '$2a$10$xn3LI/AjqicFYZFruSwve.681477XaVNaUQbr1gioaWPn4t1KsnmG', 'BCRYPT');
 
 INSERT INTO `user_authority` (`user_authorities`, `user_id`) VALUES ('READ', 1);
+INSERT INTO `user_authority` (`user_authorities`, `user_id`) VALUES ('ROLE_MANAGER', 1);
+
 INSERT INTO `user_authority` (`user_authorities`, `user_id`) VALUES ('WRITE', 2);
+INSERT INTO `user_authority` (`user_authorities`, `user_id`) VALUES ('ROLE_ADMIN', 2);
 
 
 INSERT INTO `product`(name, price, currency) VALUES('product01', 1000, 'WON');

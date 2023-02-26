@@ -9,7 +9,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public enum UserAuthority {
     READ,
     WRITE,
-    DELETE;
+    DELETE,
+
+    ROLE_MANAGER,
+
+    ROLE_ADMIN;
 
     public GrantedAuthority grantedAuthority() {
         return new SimpleGrantedAuthority(this.name());
