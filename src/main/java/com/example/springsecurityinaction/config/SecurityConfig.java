@@ -1,8 +1,11 @@
 package com.example.springsecurityinaction.config;
 
 import com.example.springsecurityinaction.domain.UserAuthority;
+import com.example.springsecurityinaction.repository.UserTokenRepository;
 import com.example.springsecurityinaction.security.auth.InMemoryUserDetailsService;
+import com.example.springsecurityinaction.security.csrf.CsrfTokenRepositoryImpl;
 import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
+import com.example.springsecurityinaction.security.filter.CsrfTokenLoggingFilter;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -29,6 +32,8 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
@@ -37,6 +42,15 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 public class SecurityConfig {
 
 //    private final StaticKeyAuthenticationFilter staticKeyAuthenticationFilter;
+
+//    private final CsrfTokenRepository csrfTokenRepository;
+
+    private final UserTokenRepository userTokenRepository;
+
+    @Bean
+    public CsrfTokenRepository csrfTokenRepository() {
+        return new CsrfTokenRepositoryImpl(userTokenRepository);
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -57,6 +71,8 @@ public class SecurityConfig {
         http.httpBasic();
 
         http.csrf(c -> {
+            c.csrfTokenRepository(csrfTokenRepository());
+
             // 1. AntRequestMatcher
             c.ignoringAntMatchers("/ciao");
 
@@ -72,6 +88,8 @@ public class SecurityConfig {
                 HttpMethod.POST.name());
             c.ignoringRequestMatchers(regexRequestMatcher);
         });
+
+        http.addFilterAfter(new CsrfTokenLoggingFilter(), CsrfFilter.class);
 
         http.authorizeHttpRequests().anyRequest().authenticated();
 
