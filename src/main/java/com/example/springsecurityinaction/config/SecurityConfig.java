@@ -7,6 +7,7 @@ import com.example.springsecurityinaction.security.csrf.CsrfTokenRepositoryImpl;
 import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
 import com.example.springsecurityinaction.security.filter.CsrfTokenLoggingFilter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -89,9 +92,28 @@ public class SecurityConfig {
             c.ignoringRequestMatchers(regexRequestMatcher);
         });
 
-        http.addFilterAfter(new CsrfTokenLoggingFilter(), CsrfFilter.class);
+        http.csrf().disable();
 
-        http.authorizeHttpRequests().anyRequest().authenticated();
+        http.cors(c -> {
+            CorsConfigurationSource source = request -> {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOrigins(
+                    List.of("127.0.0.1", "localhost")
+                );
+                config.setAllowedMethods(
+                    List.of("GET", "POST", "PUT", "DELETE")
+                );
+                config.setAllowedHeaders(
+                    List.of()
+                );
+                return config;
+            };
+
+            c.configurationSource(source);
+        });
+
+//        http.addFilterAfter(new CsrfTokenLoggingFilter(), CsrfFilter.class);
+
 
         http.formLogin()
             .defaultSuccessUrl("/main", true);
@@ -127,6 +149,10 @@ public class SecurityConfig {
 //            .regexMatchers(".*/(us|uk|ca)+/(en|fr).*").authenticated()
 //            .mvcMatchers("/main", "/products").permitAll()
 //            .anyRequest().permitAll();
+
+        http.authorizeHttpRequests()
+            .mvcMatchers("/cors").permitAll()
+            .anyRequest().authenticated();
 
         return http.build();
     }
