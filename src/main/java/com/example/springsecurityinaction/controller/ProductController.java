@@ -6,7 +6,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequiredArgsConstructor
@@ -19,5 +21,11 @@ public class ProductController {
         model.addAttribute("username", auth.getName());
         model.addAttribute("products", productService.findAll());
         return "main";
+    }
+
+    @ResponseBody
+    @GetMapping("/{code}")
+    public String productCode(@PathVariable String code) {
+        return code;
     }
 }

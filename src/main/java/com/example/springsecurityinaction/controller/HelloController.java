@@ -30,6 +30,14 @@ public class HelloController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/ciao")
+    public String ciao() { return "Ciao!"; }
+
+    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/hola")
+    public String hola() { return "Hola!"; }
+
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/v2/hello")
     public String helloV2() {
         SecurityContext context = SecurityContextHolder.getContext();

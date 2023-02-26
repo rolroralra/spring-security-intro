@@ -44,6 +44,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable();
+
 //        http
 //            .authorizeHttpRequests().anyRequest().authenticated();
 //        http.httpBasic(withDefaults());
@@ -70,12 +72,22 @@ public class SecurityConfig {
 //            .anyRequest().authenticated();
 
         // 3. hasRole("MANAGER"), hasAnyRole(...), access(spEL) - role
-        http.authorizeRequests()
-            .mvcMatchers(HttpMethod.GET, "/health").permitAll()
-//            .mvcMatchers(HttpMethod.GET, "/hello").hasRole("MANAGER")
-//            .mvcMatchers(HttpMethod.GET, "/hello").hasAnyRole("MANAGER", "ADMIN")
-            .mvcMatchers(HttpMethod.GET, "/hello").access("hasRole('MANAGER') and !hasAuthority('ADMIN')")
-            .anyRequest().authenticated();
+//        http.authorizeRequests()
+//            .mvcMatchers(HttpMethod.GET, "/health").permitAll()
+////            .mvcMatchers(HttpMethod.GET, "/hello").hasRole("MANAGER")
+////            .mvcMatchers(HttpMethod.GET, "/hello").hasAnyRole("MANAGER", "ADMIN")
+//            .mvcMatchers(HttpMethod.GET, "/hello").access("hasRole('MANAGER') and !hasAuthority('ADMIN')")
+//            .anyRequest().authenticated();
+
+        http.authorizeHttpRequests()
+            .mvcMatchers(HttpMethod.GET, "/a").authenticated()
+            .mvcMatchers(HttpMethod.POST, "/a").permitAll()
+            .mvcMatchers("/products/{code:^[0-9]*$}").permitAll()
+            .mvcMatchers(HttpMethod.GET, "/email/{email:^.+.*@.+\\.com$}").permitAll()
+//            .regexMatchers("/email/.*(.+@.+\\.com)").permitAll()
+            .regexMatchers(".*/(us|uk|ca)+/(en|fr).*").authenticated()
+            .mvcMatchers("/main", "/products").authenticated()
+            .anyRequest().denyAll();
 
         return http.build();
     }
