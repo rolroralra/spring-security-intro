@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +29,16 @@ public class HelloController {
     public String hello() {
         return "Hello!";
     }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/hello")
+    public String helloPost() {
+        return "Post Hello!";
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/ciao")
+    public String ciaoPost() { return "Post Ciao!"; }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/ciao")

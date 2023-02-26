@@ -1,11 +1,8 @@
 package com.example.springsecurityinaction.config;
 
 import com.example.springsecurityinaction.domain.UserAuthority;
-import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
 import com.example.springsecurityinaction.security.auth.InMemoryUserDetailsService;
-import com.example.springsecurityinaction.security.filter.AuthenticationLoggingFilter;
-import com.example.springsecurityinaction.security.filter.RequestValidationFilter;
-import com.example.springsecurityinaction.security.filter.StaticKeyAuthenticationFilter;
+import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -32,22 +29,23 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final StaticKeyAuthenticationFilter staticKeyAuthenticationFilter;
+//    private final StaticKeyAuthenticationFilter staticKeyAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+//        http.csrf().disable();
 
-        http.addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
-            .addFilterAt(staticKeyAuthenticationFilter, BasicAuthenticationFilter.class)
-            .addFilterAfter(new AuthenticationLoggingFilter(), BasicAuthenticationFilter.class);
+//        http.addFilterAfter(new CsrfTokenLoggingFilter(), CsrfFilter.class);
+//            .addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
+//            .addFilterAt(staticKeyAuthenticationFilter, BasicAuthenticationFilter.class)
+//            .addFilterAfter(new AuthenticationLoggingFilter(), BasicAuthenticationFilter.class);
 
 //        http
 //            .authorizeHttpRequests().anyRequest().authenticated();
@@ -56,6 +54,26 @@ public class SecurityConfig {
 //            c.realmName("OTHER");
 //            c.authenticationEntryPoint(new AuthenticationEntryPointImpl());
 //        });
+        http.httpBasic();
+
+        http.csrf(c -> {
+            // 1. AntRequestMatcher
+            c.ignoringAntMatchers("/ciao");
+
+            // 2. MvcRequestMatcher, HandlerMappingIntrospector
+//            HandlerMappingIntrospector handlerMappingIntrospector = new HandlerMappingIntrospector();
+//            MvcRequestMatcher mvcRequestMatcher = new MvcRequestMatcher(handlerMappingIntrospector,
+//                "/ciao");
+//            c.ignoringRequestMatchers(mvcRequestMatcher);
+
+            // 3. RegexRequestMatcher
+            String pattern = ".*[0-9].*";
+            RegexRequestMatcher regexRequestMatcher = new RegexRequestMatcher(pattern,
+                HttpMethod.POST.name());
+            c.ignoringRequestMatchers(regexRequestMatcher);
+        });
+
+        http.authorizeHttpRequests().anyRequest().authenticated();
 
         http.formLogin()
             .defaultSuccessUrl("/main", true);
@@ -82,15 +100,15 @@ public class SecurityConfig {
 //            .mvcMatchers(HttpMethod.GET, "/hello").access("hasRole('MANAGER') and !hasAuthority('ADMIN')")
 //            .anyRequest().authenticated();
 
-        http.authorizeHttpRequests()
-            .mvcMatchers(HttpMethod.GET, "/a").authenticated()
-            .mvcMatchers(HttpMethod.POST, "/a").permitAll()
-            .mvcMatchers("/products/{code:^[0-9]*$}").permitAll()
-            .mvcMatchers(HttpMethod.GET, "/email/{email:^.+.*@.+\\.com$}").permitAll()
-//            .regexMatchers("/email/.*(.+@.+\\.com)").permitAll()
-            .regexMatchers(".*/(us|uk|ca)+/(en|fr).*").authenticated()
-            .mvcMatchers("/main", "/products").authenticated()
-            .anyRequest().permitAll();
+//        http.authorizeHttpRequests()
+//            .mvcMatchers(HttpMethod.GET, "/a").authenticated()
+//            .mvcMatchers(HttpMethod.POST, "/a").permitAll()
+//            .mvcMatchers("/products/{code:^[0-9]*$}").permitAll()
+//            .mvcMatchers(HttpMethod.GET, "/email/{email:^.+.*@.+\\.com$}").permitAll()
+////            .regexMatchers("/email/.*(.+@.+\\.com)").permitAll()
+//            .regexMatchers(".*/(us|uk|ca)+/(en|fr).*").authenticated()
+//            .mvcMatchers("/main", "/products").permitAll()
+//            .anyRequest().permitAll();
 
         return http.build();
     }
