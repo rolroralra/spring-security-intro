@@ -3,7 +3,7 @@ package com.example.springsecurityinaction.config;
 import com.example.springsecurityinaction.domain.UserAuthority;
 import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
 import com.example.springsecurityinaction.security.entrypoint.AuthenticationEntryPointImpl;
-import com.example.springsecurityinaction.security.service.InMemoryUserDetailsService;
+import com.example.springsecurityinaction.security.auth.InMemoryUserDetailsService;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -53,9 +53,9 @@ public class SecurityConfig {
         });
 
         http.formLogin()
-            .defaultSuccessUrl("/home", true)
-            .successHandler(authenticationSuccessHandler)
-            .failureHandler(authenticationFailureHandler);
+            .defaultSuccessUrl("/main", true);
+//            .successHandler(authenticationSuccessHandler)
+//            .failureHandler(authenticationFailureHandler);
 
         http.authorizeHttpRequests(c ->
                 c.mvcMatchers(HttpMethod.GET, "/health").permitAll()
@@ -80,7 +80,7 @@ public class SecurityConfig {
         return manager;
     }
 
-     @Bean
+//     @Bean
     @SuppressWarnings("unused")
     public UserDetailsService userDetailsServiceByJdbcUserDetailsManager(DataSource dataSource) {
         String usersByUsernameQuery = "select username, password, enabled from users where username = ?";
@@ -121,7 +121,7 @@ public class SecurityConfig {
         return userDetailsService;
     }
 
-    @Bean
+//    @Bean
     @SuppressWarnings("deprecation")
     public PasswordEncoder passwordEncoder() {
         PasswordEncoderFactories.createDelegatingPasswordEncoder();
@@ -162,10 +162,20 @@ public class SecurityConfig {
         return new DelegatingPasswordEncoder(encodingId, encoders);
     }
 
-    // @Bean
+//     @Bean
     @SuppressWarnings("unused")
     public PasswordEncoder passwordEncoder4() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SCryptPasswordEncoder sCryptPasswordEncoder() {
+        return new SCryptPasswordEncoder();
     }
 
 }

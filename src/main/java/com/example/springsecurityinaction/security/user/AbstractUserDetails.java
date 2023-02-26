@@ -1,4 +1,4 @@
-package com.example.springsecurityinaction.security;
+package com.example.springsecurityinaction.security.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

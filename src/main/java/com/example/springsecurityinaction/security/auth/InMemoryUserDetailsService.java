@@ -1,4 +1,4 @@
-package com.example.springsecurityinaction.security.service;
+package com.example.springsecurityinaction.security.auth;
 
 import java.util.Map;
 import java.util.Map.Entry;

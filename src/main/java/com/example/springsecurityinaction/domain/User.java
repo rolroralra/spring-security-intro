@@ -8,6 +8,7 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,13 +30,16 @@ public class User {
 
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private EncryptionAlgorithm algorithm;
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;
     }
 
     @Enumerated(value = EnumType.STRING)
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "USER_AUTHORITY", joinColumns = @JoinColumn(name = "USER_ID"))
     private Set<UserAuthority> userAuthorities = new HashSet<>();
 

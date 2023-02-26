@@ -1,6 +1,7 @@
 package com.example.springsecurityinaction.controller;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -68,8 +69,7 @@ public class HelloController {
     }
     @GetMapping("/v2/call/hello")
     @ResponseStatus(HttpStatus.OK)
-    public String helloCallableV2()
-        throws Exception {
+    public String helloCallableV2() throws Exception {
 //        new DelegatingSecurityContextExecutor(delegate);
 //        new DelegatingSecurityContextScheduledExecutorService(delegate);
         ExecutorService executorService = new DelegatingSecurityContextExecutorService(
@@ -81,6 +81,15 @@ public class HelloController {
         } finally {
             executorService.shutdown();
         }
+    }
+
+    @GetMapping("/v3/call/hello")
+    @Async
+    @ResponseStatus(HttpStatus.OK)
+    public CompletableFuture<String> helloCallableV3() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        return CompletableFuture.completedFuture(authentication.getName());
     }
 
     private static Callable<String> callableTask() {

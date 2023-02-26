@@ -11,10 +11,13 @@ public enum UserAuthority {
     WRITE,
     DELETE;
 
+    public GrantedAuthority grantedAuthority() {
+        return new SimpleGrantedAuthority(this.name());
+    }
+
     public static List<GrantedAuthority> allGrantedAuthorities() {
         return Arrays.stream(values())
-            .map(UserAuthority::name)
-            .map(SimpleGrantedAuthority::new)
+            .map(UserAuthority::grantedAuthority)
             .collect(Collectors.toList());
     }
 }

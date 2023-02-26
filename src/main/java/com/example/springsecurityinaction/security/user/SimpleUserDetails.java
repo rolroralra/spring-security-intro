@@ -1,4 +1,4 @@
-package com.example.springsecurityinaction.security;
+package com.example.springsecurityinaction.security.user;
 
 import java.util.Collection;
 import java.util.List;
