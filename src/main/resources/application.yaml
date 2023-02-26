@@ -33,7 +33,11 @@ spring:
         - "dc=springframework,dc=org"
       port: 33389
 
+authorization:
+  key: 12345
+
 logging:
   level:
     org.hibernate.SQL: DEBUG
 #    org.hibernate.type: TRACE
+

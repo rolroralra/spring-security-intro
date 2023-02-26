@@ -2,8 +2,10 @@ package com.example.springsecurityinaction.config;
 
 import com.example.springsecurityinaction.domain.UserAuthority;
 import com.example.springsecurityinaction.security.encoder.Sha512PasswordEncoder;
-import com.example.springsecurityinaction.security.entrypoint.AuthenticationEntryPointImpl;
 import com.example.springsecurityinaction.security.auth.InMemoryUserDetailsService;
+import com.example.springsecurityinaction.security.filter.AuthenticationLoggingFilter;
+import com.example.springsecurityinaction.security.filter.RequestValidationFilter;
+import com.example.springsecurityinaction.security.filter.StaticKeyAuthenticationFilter;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -30,34 +32,35 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsManager;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-
-    private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final StaticKeyAuthenticationFilter staticKeyAuthenticationFilter;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
 
+        http.addFilterBefore(new RequestValidationFilter(), BasicAuthenticationFilter.class)
+            .addFilterAt(staticKeyAuthenticationFilter, BasicAuthenticationFilter.class)
+            .addFilterAfter(new AuthenticationLoggingFilter(), BasicAuthenticationFilter.class);
+
 //        http
 //            .authorizeHttpRequests().anyRequest().authenticated();
 //        http.httpBasic(withDefaults());
-        http.httpBasic(c -> {
-            c.realmName("OTHER");
-            c.authenticationEntryPoint(new AuthenticationEntryPointImpl());
-        });
+//        http.httpBasic(c -> {
+//            c.realmName("OTHER");
+//            c.authenticationEntryPoint(new AuthenticationEntryPointImpl());
+//        });
 
         http.formLogin()
             .defaultSuccessUrl("/main", true);
-//            .successHandler(authenticationSuccessHandler)
-//            .failureHandler(authenticationFailureHandler);
+//            .successHandler(new AuthenticationSuccessHandler())
+//            .failureHandler(new AuthenticationFailureHandler());
 
         // 1. hasAuthority("READ"), hasAnyAuthority(...)
 //        http.authorizeHttpRequests()
@@ -87,7 +90,7 @@ public class SecurityConfig {
 //            .regexMatchers("/email/.*(.+@.+\\.com)").permitAll()
             .regexMatchers(".*/(us|uk|ca)+/(en|fr).*").authenticated()
             .mvcMatchers("/main", "/products").authenticated()
-            .anyRequest().denyAll();
+            .anyRequest().permitAll();
 
         return http.build();
     }

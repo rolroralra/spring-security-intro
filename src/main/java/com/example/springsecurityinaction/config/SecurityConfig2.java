@@ -20,7 +20,7 @@ public class SecurityConfig2 extends WebSecurityConfigurerAdapter {
 //        .and()
 //            .passwordEncoder(NoOpPasswordEncoder.getInstance());
 
-        auth.authenticationProvider(authenticationProvider);
+//        auth.authenticationProvider(authenticationProvider);
     }
 
     @Override
